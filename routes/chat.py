@@ -65,14 +65,12 @@ async def create_session(request: Request, session: SessionCreate):
 async def get_conversations(session_id: str, request: Request):
     db = request.app.mongodb
 
-    conversation = await db.conversations.find_one({
-        'session_id': session_id
-    })
+    conversation = await db.conversations.find_one({'session_id': session_id})
 
     if not conversation:
         return []
 
-    return conversation
+    return ConversationCreate(**conversation)
 
 
 @router.post("/conversations/{session_id}/message")
@@ -94,7 +92,7 @@ async def send_message(
     user_message_doc = message.dict()
     user_message_doc['session_id'] = session_id
 
-    user_message_doc, bot_message_doc = ChatService.insert_message_into_conversation(user_message_doc)
+    user_message_doc, bot_message_doc = await ChatService.insert_message_into_conversation(db, session_id, user_message_doc, gpt_generator)
     
     return {
         "user_message": user_message_doc,

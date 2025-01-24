@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import List
 from datetime import datetime
+from utils import parse_datetime
+from enums import MessageRole
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -26,9 +28,16 @@ class SessionResponse(BaseModel):
         return datetime.now() > self.expires_at
 
 class ConversationMessage(BaseModel):
-    role: str  # 'user' or 'bot'
+    role: MessageRole
     content: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime
+
+    @field_validator('timestamp', mode='before')
+    def parse_timestamp(cls, value):
+        parsed = parse_datetime(value)
+        return parsed
+    class Config:
+        use_enum_values = True  
 
 class ConversationCreate(BaseModel):
     session_id: str
