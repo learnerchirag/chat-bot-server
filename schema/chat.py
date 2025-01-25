@@ -30,15 +30,12 @@ class SessionResponse(BaseModel):
 class ConversationMessage(BaseModel):
     role: MessageRole
     content: str
-    timestamp: datetime
-
-    @field_validator('timestamp', mode='before')
-    def parse_timestamp(cls, value):
-        parsed = parse_datetime(value)
-        return parsed
     class Config:
         use_enum_values = True  
 
 class ConversationCreate(BaseModel):
     session_id: str
     messages: List[ConversationMessage]
+
+class MessageUpdateRequest(BaseModel):
+    content: str
