@@ -30,4 +30,4 @@ async def get_active_session(db: MongoClient, session: SessionCreate) -> Session
         'ip_address': session.ip_address,
         'expires_at': {'$gt': datetime.utcnow()}
     })
-    return session
+    return SessionResponse(**session)
