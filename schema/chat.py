@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from bson import ObjectId
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import List
 from datetime import datetime
+from models.chat import PyObjectId
 from utils import parse_datetime
 from enums import MessageRole
 

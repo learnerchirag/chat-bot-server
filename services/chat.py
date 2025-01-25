@@ -18,7 +18,8 @@ async def create_conversation(db: MongoClient, session_id: str) -> None:
     
 async def find_conversation_by_session_id(db: MongoClient, session_id: str) -> ConversationModel:
     conversation = await db.conversations.find_one({'session_id': session_id})
-    return ConversationModel(**conversation)
+    if conversation is not None:
+        return ConversationModel(**conversation)
 
 async def update_conversation(db: MongoClient, session_id: str, update_operation: str, update_value: Dict[str, Any], additional_filters: Dict[str, Any] = None) -> UpdateResult:
     

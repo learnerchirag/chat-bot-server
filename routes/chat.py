@@ -1,3 +1,4 @@
+import uuid
 from bson import ObjectId
 from fastapi import APIRouter, Request, HTTPException
 from schema.chat import UserCreate, UserResponse, SessionCreate, ConversationCreate, ConversationMessage, MessageUpdateRequest
@@ -6,7 +7,6 @@ from services.openai_service import GPTResponseGenerator
 import services.chat as ChatService
 import services.auth as AuthService
 from env import OPENAI_API_KEY
-from models.chat import ConversationModel, MessageModel
 
 router = APIRouter()
 gpt_generator = GPTResponseGenerator(OPENAI_API_KEY)
@@ -17,16 +17,18 @@ async def register_user(user: UserCreate, request: Request):
     db = request.app.mongodb
 
     existing_user = await db.users.find_one({'email': user.email})
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+    if existing_user is not None:
+        return UserResponse(**existing_user)
     
     user_data = {
         'email': user.email,
         'name': user.name,
-        'created_at': datetime.utcnow()
+        'created_at': datetime.utcnow(),
+        "id": str(uuid.uuid4())
     }
-    
+
     result = await db.users.insert_one(user_data)
+
     return UserResponse(
         id=str(result.inserted_id),
         email=user.email,
@@ -60,7 +62,7 @@ async def get_conversations(session_id: str, request: Request):
     conversation = await ChatService.find_conversation_by_session_id(db=db, session_id=session_id)
 
     if not conversation:
-        return []
+        return None
     return conversation
 
 
