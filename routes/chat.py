@@ -40,7 +40,7 @@ async def create_session(request: Request, session: SessionCreate):
     
     db = request.app.mongodb
 
-    user = await db.users.find_one({'_id': ObjectId(session.user_id)})
+    user = await db.users.find_one({'id': session.user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
