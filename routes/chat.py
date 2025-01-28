@@ -29,11 +29,7 @@ async def register_user(user: UserCreate, request: Request):
 
     result = await db.users.insert_one(user_data)
 
-    return UserResponse(
-        id=str(result.inserted_id),
-        email=user.email,
-        name=user.name
-    )
+    return UserResponse(**user_data)
 
 @router.post("/sessions/create")
 async def create_session(request: Request, session: SessionCreate):
@@ -129,7 +125,7 @@ async def delete_message(session_id: str, message_id: str, request: Request):
 
     result = await ChatService.delete_message(db=db, session_id=session_id, message_id=message_id)
     
-    if result.deleted_count == 0:
+    if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Message not found")
     
     return {"status": "Message deleted successfully"}

@@ -33,11 +33,11 @@ async def update_conversation(db: MongoClient, session_id: str, update_operation
         {update_operation: update_value}
     )
 
-async def delete_message(db: MongoClient, session_id: str, message_id: str) -> DeleteResult: 
-    return await db.conversations.delete_one({
-        'session_id': session_id, 
-        'id': message_id
-    })
+async def delete_message(db: MongoClient, session_id: str, message_id: str) -> UpdateResult: 
+    return await db.conversations.update_one(
+        {'session_id': session_id},
+        {'$pull': {'messages': {'id': message_id}}} 
+    )
 
 async def insert_message_into_conversation(db: MongoClient, session_id: str, user_message_doc: ConversationMessage, gpt_generator: GPTResponseGenerator) -> Tuple[MessageModel, MessageModel]:
     
